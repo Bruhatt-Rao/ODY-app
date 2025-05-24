@@ -18,7 +18,7 @@ app = typer.Typer()
 console = Console()
 
 # API configuration
-API_BASE_URL = "http://localhost:4000/api"
+API_BASE_URL = "https://fdac-204-88-157-148.ngrok-free.app"
 
 # Achievement definitions
 ACHIEVEMENTS = {
@@ -75,19 +75,21 @@ def get_username() -> str:
 def load_user_data(username: str) -> dict:
     """Load user data from the API."""
     try:
-        response = requests.get(f"{API_BASE_URL}/user/{username}")
-        if response.status_code == 200:
-            return response.json()
-        return None
-    except requests.exceptions.RequestException:
+        response = requests.get(f"{API_BASE_URL}/api/user/{username}")
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        console.print(f"[red]Error getting user data: {e}[/red]")
         return None
 
 def save_user_data(username: str, data: dict) -> bool:
     """Save user data to the API."""
     try:
-        response = requests.post(f"{API_BASE_URL}/user/{username}", json=data)
-        return response.status_code == 200
-    except requests.exceptions.RequestException:
+        response = requests.post(f"{API_BASE_URL}/api/user/{username}", json=data)
+        response.raise_for_status()
+        return True
+    except requests.exceptions.RequestException as e:
+        console.print(f"[red]Error saving user data: {e}[/red]")
         return False
 
 def get_git_repo() -> Optional[git.Repo]:
@@ -310,12 +312,11 @@ def start():
     
     # Check if API is available
     try:
-        response = requests.get(f"{API_BASE_URL}/users")
-        if response.status_code != 200:
-            console.print("[red]Error: API server is not responding correctly. Please make sure it's running at http://localhost:4000[/red]")
-            return
-    except requests.exceptions.RequestException:
-        console.print("[red]Error: Could not connect to API server. Please make sure it's running at http://localhost:4000[/red]")
+        response = requests.get(f"{API_BASE_URL}/api/users")
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        console.print(f"[red]Error: Could not connect to API server: {e}[/red]")
+        console.print("[red]Please make sure the API server is running at https://fdac-204-88-157-148.ngrok-free.app[/red]")
         return
     
     # Get username
