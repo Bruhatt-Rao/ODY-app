@@ -191,6 +191,19 @@ def list_users():
         logger.error(f"Error in list_users: {str(e)}")
         return jsonify({'error': str(e)}), 500, {'Content-Type': 'application/json'}
 
+@app.route('/api/user/<username>/exists', methods=['GET'])
+def check_user_exists(username):
+    """Check if a user exists."""
+    logger.debug(f"Checking if user exists: {username}")
+    try:
+        file_path = get_user_file(username)
+        exists = os.path.exists(file_path)
+        logger.debug(f"User {username} exists: {exists}")
+        return jsonify({'exists': exists}), 200, {'Content-Type': 'application/json'}
+    except Exception as e:
+        logger.error(f"Error checking user existence: {str(e)}")
+        return jsonify({'error': str(e)}), 500, {'Content-Type': 'application/json'}
+
 def run_web_server():
     logger.info("Starting Flask server...")
     app.run(host='0.0.0.0', port=4000, debug=True)
