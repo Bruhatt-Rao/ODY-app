@@ -20,6 +20,9 @@ console = Console()
 # API configuration
 API_BASE_URL = "https://fdac-204-88-157-148.ngrok-free.app"
 
+# Store the last known commit hash to detect changes
+last_known_commit = None
+
 # Achievement definitions
 ACHIEVEMENTS = {
     'first_commit': {
@@ -304,9 +307,40 @@ def clear_terminal():
     """Clear the terminal screen."""
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def get_latest_commit_hash() -> Optional[str]:
+    """Get the hash of the latest commit."""
+    repo = get_git_repo()
+    if not repo:
+        return None
+    try:
+        return repo.head.commit.hexsha
+    except Exception:
+        return None
+
+def check_for_new_commits(username: str) -> bool:
+    """Check for new commits and update if found."""
+    global last_known_commit
+    
+    current_commit = get_latest_commit_hash()
+    if not current_commit:
+        return False
+    
+    # If this is the first check, just store the commit hash
+    if last_known_commit is None:
+        last_known_commit = current_commit
+        return False
+    
+    # If the commit hash has changed, update the progress
+    if current_commit != last_known_commit:
+        last_known_commit = current_commit
+        update_progress(username)
+        return True
+    
+    return False
+
 @app.command()
 def start():
-    """Start the code gamification system."""
+    """Start tracking git activity."""
     clear_terminal()
     console.print("[bold green]Welcome to Code Game! 🎮[/bold green]")
     
@@ -348,10 +382,16 @@ def start():
     
     console.print("Tracking your coding progress...")
     
-    while True:
-        update_progress(username)
-        display_progress(username)
-        time.sleep(60)  # Update every minute
+    # Display initial progress
+    display_progress(username)
+    
+    try:
+        while True:
+            if check_for_new_commits(username):
+                display_progress(username)
+            time.sleep(1)  # Check every second
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Stopping git activity tracking...[/yellow]")
 
 @app.command()
 def status():
