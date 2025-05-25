@@ -18,7 +18,7 @@ app = typer.Typer()
 console = Console()
 
 # API configuration
-API_BASE_URL = "https://fdac-204-88-157-148.ngrok-free.app"
+API_BASE_URL = "https://659b-204-88-157-148.ngrok-free.app"
 
 # Store the last known commit hash to detect changes
 last_known_commit = None
@@ -80,7 +80,7 @@ def load_user_data(username: str) -> dict:
     try:
         response = requests.get(f"{API_BASE_URL}/api/user/{username}")
         response.raise_for_status()
-        return response.json()
+            return response.json()
     except requests.exceptions.RequestException as e:
         console.print(f"[red]Error getting user data: {e}[/red]")
         return None
@@ -350,7 +350,7 @@ def start():
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         console.print(f"[red]Error: Could not connect to API server: {e}[/red]")
-        console.print("[red]Please make sure the API server is running at https://fdac-204-88-157-148.ngrok-free.app[/red]")
+        console.print("[red]Please make sure the API server is running at https://659b-204-88-157-148.ngrok-free.app[/red]")
         return
     
     # Get username
@@ -386,9 +386,9 @@ def start():
     display_progress(username)
     
     try:
-        while True:
+    while True:
             if check_for_new_commits(username):
-                display_progress(username)
+        display_progress(username)
             time.sleep(1)  # Check every second
     except KeyboardInterrupt:
         console.print("\n[yellow]Stopping git activity tracking...[/yellow]")
