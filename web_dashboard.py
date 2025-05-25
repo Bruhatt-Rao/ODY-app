@@ -205,6 +205,20 @@ def check_user_exists(username):
         logger.error(f"Error checking user existence: {str(e)}")
         return jsonify({'error': str(e)}), 500, {'Content-Type': 'application/json'}
 
+@app.route('/api/download/main.py', methods=['GET'])
+def download_main():
+    """Serve the main.py file for download."""
+    try:
+        with open('main.py', 'r') as f:
+            content = f.read()
+        return content, 200, {
+            'Content-Type': 'text/plain',
+            'Content-Disposition': 'attachment; filename=main.py'
+        }
+    except Exception as e:
+        logger.error(f"Error serving main.py: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 def run_web_server():
     logger.info("Starting Flask server...")
     app.run(host='0.0.0.0', port=4000, debug=True)
